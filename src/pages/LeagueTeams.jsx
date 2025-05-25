@@ -20,7 +20,7 @@ function LeagueTeams() {
       .catch(() => setTeams([]))
       .finally(() => setLoading(false));
   }, [league]);
-
+//any
   function handleLeagueChange(newLeague) {
     navigate(`/league-teams?league=${newLeague}`);
   }
