@@ -22,7 +22,6 @@ function LeagueTeams() {
   }, [league]);
 
   function handleLeagueChange(newLeague) {
-    // حدث الرابط مع الدوري الجديد
     navigate(`/league-teams?league=${newLeague}`);
   }
 
