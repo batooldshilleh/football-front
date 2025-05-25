@@ -1,70 +1,254 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# ⚽ Football Today - React Frontend App
 
-## Available Scripts
+A modern React app to display football leagues info, teams, and matches.  
+Supports selecting leagues, viewing their details, teams, and upcoming matches.  
+Deployed with Docker, Jenkins CI/CD, and Kubernetes.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 📚 Table of Contents
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- [About the Project](#about-the-project)
+- [Live Features](#live-features)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+  - [1. Clone the Repository](#1-clone-the-repository)
+  - [2. Run Locally](#2-run-locally)
+  - [3. Build & Run with Docker](#3-build--run-with-docker)
+- [CI/CD Pipeline with Jenkins](#cicd-pipeline-with-jenkins)
+- [Kubernetes Deployment](#kubernetes-deployment)
+- [Project Structure](#project-structure)
+- [Screenshots](#screenshots)
+- [To Do](#to-do)
+- [License](#license)
+- [Author](#author)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## About the Project
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+This React app fetches football league information from a backend API and displays:
 
-### `npm run build`
+- League info (name, country, season, type, round)
+- League teams with logos and details
+- Upcoming league matches with time and venue
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+The app supports right-to-left Arabic layout and modern UI styles.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Live Features
 
-### `npm run eject`
+- Select league from dropdown
+- View league info with logo and details
+- View list of teams with logos and country info
+- View upcoming matches with formatted date/time and venue
+- Responsive design with cards and grid layout
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Tech Stack
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+| Technology         | Purpose               |
+|--------------------|-----------------------|
+| React 18           | Frontend Framework    |
+| React Router DOM   | Routing               |
+| Axios              | API Requests          |
+| CSS (with RTL)     | Styling & Layout      |
+| Docker             | Containerization      |
+| Jenkins            | CI/CD Pipeline        |
+| Kubernetes         | Deployment            |
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
 
-## Learn More
+## Getting Started
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 1. Clone the Repository
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+git clone https://github.com/batooldshilleh/football-front.git
+cd football-front
+````
 
-### Code Splitting
+### 2. Run Locally
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+npm install
+npm start
+```
 
-### Analyzing the Bundle Size
+Open your browser at: `http://localhost:3000`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### 3. Build & Run with Docker
 
-### Making a Progressive Web App
+Build the Docker image:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```bash
+docker build -t batoolsh2001/my-react-app .
+```
 
-### Advanced Configuration
+Run the container:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```bash
+docker run -p 80:80 batoolsh2001/my-react-app
+```
 
-### Deployment
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## CI/CD Pipeline with Jenkins
 
-### `npm run build` fails to minify
+The Jenkins pipeline includes the following stages:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+* Checkout source code from GitHub
+* Build Docker image
+* Push Docker image to Docker Hub
+* Deploy to Kubernetes cluster
+
+### Example `Jenkinsfile` snippet:
+
+```groovy
+pipeline {
+  agent any
+
+  environment {
+    DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
+    IMAGE_NAME = 'batoolsh2001/my-react-app'
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        git branch: 'main', credentialsId: 'github-pat', url: 'https://github.com/batooldshilleh/football-front.git'
+      }
+    }
+    stage('Build Docker Image') {
+      steps {
+        sh 'docker build -t $IMAGE_NAME .'
+      }
+    }
+    stage('Push to Docker Hub') {
+      steps {
+        script {
+          sh 'echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin'
+          sh 'docker push $IMAGE_NAME'
+        }
+      }
+    }
+    stage('Deploy to Kubernetes') {
+      steps {
+        withCredentials([file(credentialsId: 'kubeconfig-minikube', variable: 'KUBECONFIG')]) {
+          sh 'kubectl --kubeconfig=$KUBECONFIG apply -f frontend-deployment.yaml'
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
+## Kubernetes Deployment
+
+Use the following manifest to deploy the React app:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: batoolsh2001/my-react-app:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+```
+
+Apply the deployment:
+
+```bash
+kubectl apply -f frontend-deployment.yaml
+```
+
+---
+
+## Project Structure
+
+```
+football-front/
+│
+├── src/
+│   ├── components/
+│   │   └── LeagueSelector.js
+│   ├── pages/
+│   │   ├── LeagueInfo.js
+│   │   ├── LeagueMatches.js
+│   │   └── LeagueTeams.js
+│   ├── App.js
+│   └── App.css
+│
+├── Dockerfile
+├── Jenkinsfile
+├── frontend-deployment.yaml
+├── package.json
+└── README.md
+```
+
+---
+
+## Screenshots
+
+![Football Today Screenshot](https://github.com/user-attachments/assets/f6829d19-9400-46c3-b648-1dd55f43f28d)
+
+---
+
+## To Do
+
+* Add unit and integration tests
+* Connect with live backend API (or add mock server)
+* Enhance UI responsiveness and accessibility
+* Support multiple languages (Arabic/English)
+* Add more football leagues and features
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+
+---
+
+## Author
+
+Batool Shilleh
+[GitHub](https://github.com/batooldshilleh) | [LinkedIn](https://www.linkedin.com/in/batool-shilleh/)
+
+---
+
+*Thank you for checking out this project! Feel free to contribute or open issues for suggestions.*
+
+```
+
